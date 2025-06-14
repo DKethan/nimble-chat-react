@@ -1,10 +1,11 @@
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, Loader2 } from 'lucide-react';
+import { Send, Loader2, Plus, Mic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
+import ChatSidebar from '@/components/ChatSidebar';
 
 interface Message {
   id: string;
@@ -88,114 +89,128 @@ const Index = () => {
   }, [input]);
 
   return (
-    <div className="flex flex-col h-screen bg-gray-900 text-white">
-      {/* Header */}
-      <div className="flex-shrink-0 border-b border-gray-700 bg-gray-800/50 backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto px-4 py-3">
-          <h1 className="text-lg font-semibold text-gray-100">ChatGPT Clone</h1>
-        </div>
-      </div>
+    <div className="flex h-screen bg-gray-900 text-white">
+      {/* Sidebar */}
+      <ChatSidebar />
 
-      {/* Chat Messages */}
-      <div className="flex-1 overflow-hidden">
-        <ScrollArea className="h-full" ref={scrollAreaRef}>
-          <div className="max-w-4xl mx-auto px-4 py-6">
-            {messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center py-20">
-                <div className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent text-4xl font-bold mb-4">
-                  Welcome to ChatGPT Clone
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Chat Messages */}
+        <div className="flex-1 overflow-hidden">
+          <ScrollArea className="h-full" ref={scrollAreaRef}>
+            <div className="max-w-3xl mx-auto px-4 py-6">
+              {messages.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-center py-20">
+                  <h1 className="text-4xl font-semibold text-white mb-8">
+                    What are you working on?
+                  </h1>
                 </div>
-                <p className="text-gray-400 text-lg mb-8 max-w-md">
-                  Start a conversation by typing your message below. This interface replicates the ChatGPT experience.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
-                  <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
-                    <h3 className="font-semibold mb-2 text-gray-200">💡 Ask anything</h3>
-                    <p className="text-gray-400 text-sm">Get help with coding, writing, analysis, or creative tasks</p>
-                  </div>
-                  <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
-                    <h3 className="font-semibold mb-2 text-gray-200">🚀 Built with React</h3>
-                    <p className="text-gray-400 text-sm">Modern UI with Tailwind CSS and TypeScript</p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div
-                      className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                        message.role === 'user'
-                          ? 'bg-blue-600 text-white ml-auto'
-                          : 'bg-gray-800 text-gray-100 border border-gray-700'
-                      }`}
-                    >
-                      <div className="whitespace-pre-wrap break-words">
-                        {message.content}
+              ) : (
+                <div className="space-y-6">
+                  {messages.map((message) => (
+                    <div key={message.id} className="flex">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mr-3">
+                        <span className="text-xs font-semibold">
+                          {message.role === 'user' ? 'U' : 'AI'}
+                        </span>
                       </div>
-                      <div className={`text-xs mt-2 opacity-70 ${
-                        message.role === 'user' ? 'text-blue-100' : 'text-gray-400'
-                      }`}>
-                        {message.timestamp.toLocaleTimeString([], { 
-                          hour: '2-digit', 
-                          minute: '2-digit' 
-                        })}
+                      <div className="flex-1">
+                        <div className="text-gray-100 leading-relaxed">
+                          {message.content}
+                        </div>
+                        <div className="text-xs text-gray-400 mt-2">
+                          {message.timestamp.toLocaleTimeString([], { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          })}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-                {isLoading && (
-                  <div className="flex justify-start">
-                    <div className="bg-gray-800 text-gray-100 border border-gray-700 rounded-2xl px-4 py-3 max-w-[80%]">
-                      <div className="flex items-center space-x-2">
+                  ))}
+                  {isLoading && (
+                    <div className="flex">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-blue-500 flex items-center justify-center mr-3">
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        <span className="text-gray-400">Thinking...</span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-gray-400">Thinking...</div>
                       </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </ScrollArea>
-      </div>
-
-      {/* Input Area */}
-      <div className="flex-shrink-0 border-t border-gray-700 bg-gray-800/50 backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <form onSubmit={handleSubmit} className="relative">
-            <div className="relative flex items-end space-x-3">
-              <div className="flex-1 relative">
-                <Textarea
-                  ref={textareaRef}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Type your message here... (Enter to send, Shift+Enter for new line)"
-                  className="min-h-[50px] max-h-[120px] resize-none bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500/20 rounded-xl pr-12"
-                  disabled={isLoading}
-                />
-              </div>
-              <Button
-                type="submit"
-                size="icon"
-                disabled={!input.trim() || isLoading}
-                className="h-[50px] w-[50px] bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-all duration-200"
-              >
-                {isLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <Send className="w-5 h-5" />
-                )}
-              </Button>
+                  )}
+                </div>
+              )}
             </div>
-          </form>
-          <p className="text-xs text-gray-500 mt-2 text-center">
-            ChatGPT Clone - Built with React, Tailwind CSS, and TypeScript
-          </p>
+          </ScrollArea>
+        </div>
+
+        {/* Input Area */}
+        <div className="border-t border-gray-700 bg-gray-900">
+          <div className="max-w-3xl mx-auto px-4 py-4">
+            <form onSubmit={handleSubmit} className="relative">
+              <div className="relative bg-gray-800 rounded-3xl border border-gray-600 focus-within:border-gray-500">
+                <div className="flex items-end">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="ml-3 mb-3 h-8 w-8 text-gray-400 hover:text-white hover:bg-gray-700"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                  
+                  <Textarea
+                    ref={textareaRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Ask anything"
+                    className="flex-1 min-h-[48px] max-h-[120px] resize-none bg-transparent border-0 text-white placeholder-gray-400 focus:ring-0 focus:outline-none px-0 py-3"
+                    disabled={isLoading}
+                  />
+                  
+                  <div className="flex items-center mr-3 mb-3 space-x-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-gray-400 hover:text-white hover:bg-gray-700"
+                    >
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L12 22M5 12L19 12" stroke="currentColor" strokeWidth="2"/>
+                        <circle cx="12" cy="12" r="3" fill="currentColor"/>
+                      </svg>
+                    </Button>
+                    
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-gray-400 hover:text-white hover:bg-gray-700"
+                    >
+                      <Mic className="w-4 h-4" />
+                    </Button>
+                    
+                    <Button
+                      type="submit"
+                      size="icon"
+                      disabled={!input.trim() || isLoading}
+                      className="h-8 w-8 bg-white text-black hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isLoading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Send className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </form>
+            
+            <p className="text-xs text-gray-500 text-center mt-3">
+              ChatGPT can make mistakes. Check important info.
+            </p>
+          </div>
         </div>
       </div>
     </div>
